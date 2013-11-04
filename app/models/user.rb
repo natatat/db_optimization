@@ -17,8 +17,11 @@ class User < ActiveRecord::Base
             :format => {:with => /^[\w+\-.]+@[a-z\d\-.]+\.[a-z]+$/i},
             :uniqueness => {:case_sensitive => false}
 
+  before_save :update_total_karma
+
   def self.by_karma
-    joins(:karma_points).group('users.id').order('SUM(karma_points.value) DESC')
+    self.order("karma_total DESC")
+    # joins(:karma_points).group('users.id').order('SUM(karma_points.value) DESC')
   end
 
   def total_karma
@@ -27,5 +30,9 @@ class User < ActiveRecord::Base
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def update_total_karma
+    self.karma_total = self.total_karma
   end
 end
